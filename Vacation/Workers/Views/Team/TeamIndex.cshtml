@@ -1,0 +1,44 @@
+﻿@model IEnumerable<DataAccessLayer.Models.Person>
+
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+    <div class="row h-100">
+        <div class="col-md-3">
+            <h2>@ViewData["TeamName"]</h2>
+            @foreach (var person in Model)
+            {
+                <li>@person.Name @person.LastName </li>
+            }
+        </div>
+    </div>
+     <div class="row h-100">
+         <div  >
+             <div class="col-md-2">
+                 @if (@User.FindFirst(claim => claim.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "admin")
+                 {
+                     <a asp-area="" asp-controller="Person" asp-action="AddnewPerson" asp-route-TeamId="@ViewBag.TeamId">
+                         <button type="button" class="btn btn-secondary" style="margin: 1rem;">
+                             Add new Person
+                         </button>
+
+                     </a>
+                 }
+                 </div>
+             <div class="col-md-2"  >
+                 <div class=" card card-inverse card-danger">
+                     @if (@User.FindFirst(claim => claim.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "admin")
+                     {
+                         <a asp-area="" asp-controller="Team" asp-action="TeamDelete" asp-route-TeamId="@ViewBag.TeamId">
+                             <button type="button" class="btn btn-secondary" style="margin:1rem;">
+                                 Delete Team
+                             </button>
+                         </a>
+                     }
+                     </div>
+             </div>
+             <div class="col-md-2">
+                 <a asp-controller="Team" asp-action="ShowvacationTeam" asp-route-TeamId="@ViewBag.TeamId"> <button class="btn btn-secondary" style="margin: 1rem;">Show vacation </button> </a>
+             </div>
+         </div>
+    </div>

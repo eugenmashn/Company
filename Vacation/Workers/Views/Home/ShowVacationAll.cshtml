@@ -1,0 +1,508 @@
+﻿
+@{
+    ViewData["Title"] = "ShowVacation";
+}
+
+
+
+
+    <head>
+        <meta charset='utf-8' />
+        <script src='~/fullcalendar/lib/jquery.min.js'></script>
+
+        <link href='~/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
+        <link href='~/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+        @*<script src="path/to/jquery.nice-select.js"></script>*@
+        <script src="~/NiceSelect/js/jquery.nice-select.min.js"></script>
+        <script src="~/NiceSelect/js/fastclick.js"></script>
+        <script src="~/NiceSelect/js/prism.js"></script>
+        @*<script src="http://hernansartorio.com/jquery-nice-select/js/jquery.js"></script>
+        <script src="http://hernansartorio.com/jquery-nice-select/js/jquery.nice-select.min.js"></script>
+        <script src="http://hernansartorio.com/jquery-nice-select/js/fastclick.js"></script>
+        <script src="http://hernansartorio.com/jquery-nice-select/js/prism.js"></script>*@
+        <link rel="stylesheet" href="path/to/nice-select.css">
+        <link rel="stylesheet"href="~/NiceSelect/css/nice-select.css">
+        <script src='~/fullcalendar/lib/moment.min.js'></script>
+
+        <script src='~/fullcalendar/fullcalendar.min.js'></script>
+
+        @*<link href='../fullcalendar.css' rel='stylesheet' />
+        <link href='../fullcalendar.print.css' rel='stylesheet' media='print' />
+        <script src='../lib/moment.min.js'></script>
+        <script src='../lib/jquery.min.js'></script>
+        <script src='../fullcalendar.min.js'></script>*@
+        <script>
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            let yyyy = today.getFullYear();
+            let checkCall = false;
+            let LastName = '';
+            let ArrayDateWeekend = [];
+            let ArrayEventAll = [];
+            let ArrayDAtaEventsUrl = [];
+
+            let ArrayEventsTeanFilter = [];
+            let Check = 0;
+            today = mm + '/' + dd + '/' + yyyy;
+     
+           
+       //  $( document ).ready(function(){
+	      //  //$.ajax({
+       //  //               url: '/Home/GetWeekend',
+       //  //               type: "GET",
+       //  //               dataType: "json",
+       //  //               data: {},
+       //  //               contentType: 'application/json; charset=utf-8',
+       //  //               success: function (doc) {
+                        
+       //  //                   ArrayDateWeekend = doc;
+       //  //               }
+       //  //            });
+       //       $.getJSON( "/Home/GetWeekend", function( data ) {
+       //           var items = [];
+       //           $.each( data, function( Date ) {
+       //               ArrayDateWeekend.push(Date);
+       //               debugger;
+       //               Check+=1;
+       //           });
+ 
+       
+       //       });
+	      //});   
+             
+        $(document).ready(function () {
+        
+          
+                      
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'year,month,agendaWeek,agendaDay'
+                },
+                defaultDate: today,
+                defaultView: 'year',
+                yearColumns: 3,
+
+                firstDay: 1,
+                editable: true,
+                slotMinutes: 60,
+
+                events:  '@Url.RouteUrl(new{ action="GetEvents", controller="Home" })',
+                eventDrop: function (event) {
+                    $.ajax({
+                        url: '/Home/ChangeDateVacation',
+                        data: JSON.stringify(event),
+                        contentType: 'application/json',
+                        type: 'POST',
+                         async: false,
+                    });
+                   console.log(event.id, event.start, event.end);
+
+                },
+                eventDurationEditable: false,
+                titleFormat:"MM/DD/YYYY",
+                dayRender: function (date, cell) {
+                    if (!checkCall) {
+                       $.ajax({
+                        url: '/Home/GetWeekend',
+                        type: "GET",
+                        dataType: "json",
+                        data: {},
+                       contentType: 'application/json; charset=utf-8',
+                       async: false,
+                        success: function (doc) {
+                   
+                           
+                            checkCall = true;           
+                          ArrayDateWeekend = doc;
+                  
+                            
+                               
+                        }
+                      });    
+                    }
+          
+                    var today = moment('2019-09-11T00:00Z');
+                    if (CheckWeekend(date)) {
+                   
+                        console.log("dfkokokoko");
+                        cell.addClass('holydays');
+                    }
+                  
+                   if (date.day()==5||date.day()==6) {
+                        cell.addClass('colorWeekend');
+                    }   
+                }
+            });
+           
+            
+        });
+            function CheckWeekend(Date) {
+
+          
+                for (let i = 0; i < ArrayDateWeekend.length; i++) {
+                    let dates = moment(ArrayDateWeekend[i].date);
+                        
+                    console.log(dates);
+               
+                    //console.log(dates);
+                    //console.log("dates")
+                    //console.log(moment(Date));   
+                   
+                    if (Date.isSame(dates,"day")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            function AjaxCall() {
+               
+                    $.ajax({
+                        url: '/Home/GetWeekend',
+                        type: "GET",
+                        dataType: "json",
+                        data: {},
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (doc) {
+                            
+                           
+                            checkCall = true;
+                   
+                            ArrayDateWeekend = doc;
+                        
+                            async: false;
+                             
+                        }
+                        
+                    });
+
+               
+            }
+        $(document).ready(function() {
+            $('#filterbtn').click( ()=> {
+                LastName = $('#fiterinput').val();
+                if ($('#calendar').fullCalendar('clientEvents').length > ArrayDAtaEventsUrl.length)
+                {
+                    ArrayDAtaEventsUrl = $('#calendar').fullCalendar('clientEvents');
+                }
+
+                 $('#calendar').fullCalendar('removeEvents');
+                 $('#calendar').fullCalendar('addEventSource', ArrayDAtaEventsUrl);
+                let Arrayevents = $('#calendar').fullCalendar('clientEvents', function (evt) {
+
+                    return [evt.title.indexOf(LastName)] >= 0
+                });
+                //console.log(ArrayDAtaEventsUrl);
+                //console.log($('#calendar').fullCalendar('clientEvents'));
+
+
+                $('#calendar').fullCalendar('removeEvents');
+                $('#calendar').fullCalendar('addEventSource', Arrayevents);
+
+            });
+        });
+         $(document).ready(function() {
+                 $('select').niceSelect();
+         });
+            $(document).ready(function () {
+                $("#filterTeam").change(function () {
+                    ArrayDAtaEventsUrl = [];
+                    let TeamNAme = $(this).val();
+                    console.log(TeamNAme);
+                     if ($('#calendar').fullCalendar('clientEvents').length > ArrayEventsTeanFilter.length)
+                     {
+                        ArrayEventsTeanFilter = $('#calendar').fullCalendar('clientEvents');
+                     }
+         
+                         $('#calendar').fullCalendar('removeEvents');
+                      $('#calendar').fullCalendar('addEventSource', ArrayEventsTeanFilter);
+                    let Arrayevents = $('#calendar').fullCalendar('clientEvents', function (evt) {
+                        console.log(evt);
+                    return [evt.title.indexOf(TeamNAme)] >= 0
+                });
+                //console.log(ArrayEventsTeanFilter);
+                //console.log($('#calendar').fullCalendar('clientEvents'));
+
+
+                $('#calendar').fullCalendar('removeEvents');
+                $('#calendar').fullCalendar('addEventSource', Arrayevents);
+
+                });
+           });  
+     
+           $(function () {
+                  
+        // ID selector on Master Checkbox
+           var masterCheck = $("#CheckName");
+        // ID selector on Items Container
+           var listCheckItems = $("#list-Names :checkbox");
+               var listCheckTeam = listCheckItems.filter((i, item) => {
+            
+                   if (item.value.indexOf('Team')!=-1) {
+                       return true;
+                   }
+                   else {
+                       return false;
+                   }
+              
+           })
+               var listCheck = listCheckItems.filter((i, item) => {
+               if (item.value.indexOf('Team')!=-1) {
+                       return false;
+                   }
+                   else {
+                       return true;
+                   }
+                 
+           })
+          
+           listCheckTeam.on("change", function () {
+           var totalItems = listCheckTeam.length;
+          var checkedItems = listCheckTeam.filter(":checked").length;
+          if (totalItems == checkedItems) {
+                     
+          var isMasterChecked = $(this).is(":checked");
+          listCheckItems.prop("checked", isMasterChecked);
+          getSelectedItems();
+          }
+          // Not all but only some are checked
+          else if (checkedItems > 0 && checkedItems < totalItems) {
+              let Teams = listCheckTeam.filter(":checked");
+          
+              let listCheackItemFilter = listCheck.filter((i, item) => {
+                  let Cheack = false;
+                  $.each(Teams, function (value,team){
+                      console.log(team.value);
+                      console.log(item.id);
+                      if (item.id.indexOf(team.value) > 0) {
+                          Cheack = true;
+                        
+                          console.log(team.value);
+                      }
+                    
+                  })
+                  return Cheack;
+              })
+         
+             
+              listCheck.each(function (i, item) {
+              
+                  $(item).removeAttr("checked");
+              });
+              listCheackItemFilter.each(function (i, item) {        
+                $(item).prop("checked", "checked");
+              });
+            masterCheck.prop("indeterminate", true);
+
+          }
+          //If none is checked
+          else {
+            
+              listCheckItems.each(function (i,item) {
+                $(item).removeAttr( "checked" );
+              });
+        
+                   
+          }
+               getSelectedItems(); })
+        // Click Event on Master Check
+        masterCheck.on("click", function () {
+        
+          var isMasterChecked = $(this).is(":checked");
+          listCheckItems.prop("checked", isMasterChecked);
+          getSelectedItems();
+        });
+              
+    
+        // Change Event on each item checkbox
+        listCheckItems.on("change", function() {
+          // Total Checkboxes in list
+            var totalItems = listCheckItems.length;
+   
+          // Total Checked Checkboxes in list
+          var checkedItems = listCheckItems.filter(":checked").length;
+
+            
+          //If all are checked
+          if (totalItems == checkedItems) {
+            masterCheck.prop("indeterminate", false);
+            masterCheck.prop("checked", true);
+          }
+          // Not all but only some are checked
+          else if (checkedItems > 0 && checkedItems < totalItems) {
+            masterCheck.prop("indeterminate", true);
+          }
+          //If none is checked
+          else {
+            masterCheck.prop("indeterminate", false);
+            masterCheck.prop("checked", false);
+          }
+          getSelectedItems();
+        });
+           
+
+                   
+       
+          
+
+                 
+            function getSelectedItems() {
+      
+                if ($('#calendar').fullCalendar('clientEvents').length > ArrayEventAll) {
+                    ArrayEventAll = $('#calendar').fullCalendar('clientEvents');
+                }
+                var getCheckedValues = [];
+                getCheckedValues = [];
+                let ArrayNameFiter = [];
+                ArrayNameFiter = [];
+                let ArrayEventsNow = [];
+                $('#calendar').fullCalendar('removeEvents');
+                $('#calendar').fullCalendar('addEventSource', ArrayEventAll);
+               
+                listCheckItems.filter(":checked").each(function () {
+                    getCheckedValues.push($(this).val());
+     
+                   // ArrayEventsNow = ArrayEventsNow.filter((p) => {
+                      
+                   //     return  [p.title.indexOf($(this).val())] >= 0
+                   // })
+                   //ArrayNameFiter=ArrayEventAll.filter((p) => {
+                   //     console.log([p.title.indexOf($(this).val())] >= 0);
+                   //     return [p.title.indexOf($(this).val())] >= 0
+                   // }) 
+                      let TeamNAme = $(this).val();
+                    
+                       getCheckedValues.push($(this).val());
+                    ArrayNameFiter = ArrayNameFiter.concat($('#calendar').fullCalendar('clientEvents', function (evt) {
+                        if (TeamNAme.indexOf('Team') >= 0)
+                            return false;
+                    return [evt.title.indexOf(TeamNAme)] >= 0
+                       }));
+                });
+
+                
+               
+          
+               
+                 $('#calendar').fullCalendar('removeEvents');
+                $('#calendar').fullCalendar('addEventSource', ArrayNameFiter);
+              $("#selected-values").html(JSON.stringify(getCheckedValues));
+              }
+       
+     });  
+            
+        </script>
+        <style>
+
+            /*body {
+                margin: 50px 20px;
+                padding: 0;
+                font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+                font-size: 14px;
+            }*/
+
+            /*#calendar {
+                max-width: auto;
+                margin: 10px;
+            }*/
+            .colorWeekend {
+            background-color:#f0ebeb;
+            }
+            .holydays {
+                     background-color:#f2c2c2;
+            }
+            .fc-event {
+                border: 1px solid #3a87ad; /* default BORDER color */
+                color: #fff; /* default TEXT color */
+                font-size: 2em;
+                font-weight: bold;
+                cursor: default;
+            }
+
+            body {
+                margin-top: 50px;
+            }
+
+            .filterinput {
+                margin-top: 3rem;
+            }
+
+            .fc-scroller {
+                height: auto !important;
+            }
+            /*.fc-sun{ background-color:grey; }
+            .fc-sat { background-color:grey; }*/
+         </style>
+    </head>
+<body>
+    <h2>ShowVacation</h2>
+    <div id="root">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="row">
+                        <div class="card">
+                            <div class="card-header">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               value="selectAll"
+                                               id="CheckName" />
+                                        <label class="form-check-label" for="CheckName">
+                                            Select / Unselect All
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+
+                                <ul class="list-group list-group-flush" id="list-Names">
+                                    <h3>Team</h3>
+                                    @foreach (var team in ViewBag.Team)
+                                    {
+                                        <li class="list-group-item">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   value="@team.TeamName Team"
+                                                   id="item@team.Id " />
+                                            <label class="form-check-label" for="item@team.Id">
+                                                @team.TeamName 
+                                            </label>
+                                        </li>
+                                    }
+                                      <h3></h3>
+                                    @foreach (var person in ViewBag.People)
+                                    {
+                                        <li class="list-group-item" style="background-color:@person.backgroundColor">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   value=" @person.LastName @person.Name"
+                                                   id="item @person.PersonId @person.TeamName Team" />
+                                            <label class="form-check-label" for="item@team.Id">
+                                                @person.Name @person.LastName
+                                            </label>
+                                        </li>
+                                    }
+
+
+
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-10" id='calendar'></div>
+          
+        </div>
+    </div>
+
+
+    
+</body>
+
+

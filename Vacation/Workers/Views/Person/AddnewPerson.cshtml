@@ -1,0 +1,44 @@
+﻿@model DataAccessLayer.Models.Person
+@{
+    ViewData["Title"] = "AddnewPerson";
+}
+
+@{
+    List<SelectListItem> listItems = new List<SelectListItem>();
+    foreach (var Team in ViewBag.Teams)
+    {
+        listItems.Add(new SelectListItem
+        {
+            Text = Team.TeamName,
+            Value = Team.Id.ToString()
+        }
+        );
+    }
+}
+
+
+@using (Html.BeginForm("CreatenewPerson", "Person", FormMethod.Post))
+{
+    <div class="col">
+        <label>Name</label>
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+        @*//<input type="text" name="TeamName" placeholder="Team NAme" class="form-control" />*@
+    </div>
+    <div class="col">
+        <label>LastName</label>
+        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+        @*//<input type="text" name="TeamName" placeholder="Team NAme" class="form-control" />*@
+    </div>
+    <div class="col">
+        <h2>Days vacation</h2>
+        @Html.TextBoxFor(m => m.Days, new { @class = "form-control", @type = "number", @min = 0, @max = 18 })
+        @*<input type="number" class="form-control" name="MinNumberWorkers">*@
+    </div>
+    <div class="col ">
+        <label>Team</label>
+        @Html.DropDownListFor(m => m.TeamId, listItems, "-- Select Status --", new{ @class = "form-control" })
+    </div>
+    <div style="margin:10px 0px " class=" col">
+        <button type="submit" class=" btn btn-primary btn-lg btn-block">Add</button>
+    </div>
+}
